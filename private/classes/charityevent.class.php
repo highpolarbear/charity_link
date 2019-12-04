@@ -63,18 +63,19 @@ class CharityEvent extends DatabaseObject{
         return User::find_by_sql("SELECT DISTINCT user.* FROM user, participant WHERE user.id = participant.uid AND participant.eid = '".$this->id."';");
     }
 
+    
+
     public function get_all_donators(){
-        $sql = "SELECT uid, SUM(amount) FROM donation WHERE eid='".$this->id."'";
+        $sql = "SELECT DISTINCT uid, SUM(amount) as amt FROM donation WHERE eid='".$this->id."' GROUP BY uid";
         $result = self::$database->query($sql);
         if(!$result) {
-          exit("Database query failed.");
+          return array();
         }
     
         // results into objects
         $object_array = [];
         while($record = $result->fetch_assoc()) {
-          $donator = User::find_by_id($record['uid']);
-          $object_array[$donator] = $record['amount'];
+          $object_array[$record['uid']] = $record['amt'];
         }
     
         $result->free();
@@ -86,7 +87,7 @@ class CharityEvent extends DatabaseObject{
         $sql = "SELECT SUM(amount) as amt FROM donation WHERE eid='".$this->id."'";
         $result = self::$database->query($sql);
         if(!$result) {
-          exit("Database query failed.");
+          return 0;
         }
     
         // results into objects

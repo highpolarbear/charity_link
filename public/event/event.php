@@ -3,7 +3,6 @@
   require("event_path.php");
 	// include the header
   require("../../private/shared/header.php");
-  require("../../private/database.php");
   
   require_once("../../private/initialize.php");
   
@@ -17,12 +16,11 @@
   
 ?>
 
-<?php  
-$user_id = $_SESSION['id'];
-$charity_id = $_GET['id'];
+<?php  $user_id = $_SESSION['id'];
+  $charity_id = $_GET['id'];
 
 if ($_SERVER['REQUEST_METHOD']=='POST'){
-    
+
 
 }
 
@@ -74,14 +72,32 @@ if ($_SERVER['REQUEST_METHOD']=='POST'){
                         </p>
                         <p class="card-text">Start date: <?php echo ($event->start_date); ?></p>
                         <p class="card-text">End date: <?php echo ($event->end_date); ?></p>
-                        <p class="card-text">Current fund: <?php echo ($event->donation_sum()); ?></p>
-                        <p class="card-text">Fund goal: <?php echo ($event->fund_goal); ?></p>
+                        <p class="card-text">Current fund: £<?php echo ($event->donation_sum()); ?></p>
+                        <p class="card-text">Fund goal: £<?php echo ($event->fund_goal); ?></p>
                         <div class="row">
                             <div class="col-sm">
-                            <a href="<?php echo (url_for("/event/join.php?id=$event->id&user_id=$user_id")); ?>" class="btn btn-outline-success btn-block">Join</a>
+                                <?php
+                            global $db;
+                            $query = "SELECT * FROM participant";
+                            $result_set = mysqli_query($db, $query);
+                
+                            while($e = mysqli_fetch_assoc($result_set)){
+                              if ($e["uid"] == $user_id){
+                                $joined = true;
+                                break;
+                              }
+                            }
+                            mysqli_free_result($result_set);
+                            if (isset($joined)){
+                              echo "<a href=".  (url_for("/event/event.php?id=$charity_id")) ." class=\"btn btn-outline-success btn-block\" >Already Joined</a>";
+                            }
+                            else if (!isset($joined)){
+                              echo "<a href=".  (url_for("/event/eventjoin.php?id=$event->id&user_id=$user_id")) ." class=\"btn btn-outline-success btn-block\">Join</a>";
+                            }
+                            ?>
                             </div>
                             <div class="col-sm">
-                                <a href="<?php echo (url_for("/event/eventdonate.php?id=.$event->id")); ?>" class="btn btn-outline-success btn-block">Donate</a>
+                                <a href="<?php echo (url_for("/event/eventdonate.php?id=".$event->id)); ?>" class="btn btn-outline-success btn-block">Donate</a>
                             </div>
                         </div>
                       </div>
@@ -129,9 +145,10 @@ if ($_SERVER['REQUEST_METHOD']=='POST'){
                         <?php
                           $donators = $event->get_all_donators();
                           if (sizeof($donators) == 0){
-                            echo "</br>No donators? Aw, it\'ll be okay :)";
+                            echo "</br>No donators? Aw, it'll be okay :)";
                           }
                           foreach ($donators as $u => $a){
+                            $donpeople = User::find_by_id($u);
                             echo '</br> <div class="row">
                                 <div class="col-md-3">
                                         <img src="images/user.png" class="card-img" alt="...">
@@ -139,14 +156,14 @@ if ($_SERVER['REQUEST_METHOD']=='POST'){
                                 <div class="col-md-6">
                                     <div class="card text-center">
                                       <div class="card-body">
-                                        <h5 class="card-title">'.$u->user_name.'</h5>
+                                        <h5 class="card-title">'.$donpeople->user_name.'</h5>
                                         </div>
                                     </div>          
                                 </div>
                                 <div class="col-md-3">
                                     <div class="card text-center">
                                       <div class="card-body">
-                                        <h5 class="card-text">'.$d.'</h5>
+                                        <h5 class="card-text">'.$a.'</h5>
                                         </div>
                                     </div>          
                                 </div>

@@ -1,5 +1,6 @@
 <?php
 require("../../private/database.php");
+require("../../private/initialize.php");
 
 $db = db_connect();
 
@@ -30,5 +31,5 @@ else{
 }
 db_disconnect($db);
 
-redirect_to(url_for("index.php"));
+redirect_to(url_for("/event/event.php?id=".$u_id));
 ?>

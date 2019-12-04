@@ -114,7 +114,7 @@
                   
                         <div class="row">
                             <div class="col-md-4">
-                                <label for="card_number">Credit Card Cumber</label>
+                                <label for="card_number">Credit Card Number</label>
                             </div>
                             <div class="col-md-8">
                                 <input type="number" id="card_number" name="card_number" placeholder="0000111122223333">
